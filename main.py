@@ -82,6 +82,10 @@ while en_cours:
             elif ecran=="puzzle":
                 if bouton_retour.collidepoint(evenement.pos):
                     ecran="menu"
+            elif ecran=="gagne":
+                if bouton_retour.collidepoint(evenement.pos):
+                    ecran="menu"
+
 
     fenetre.fill(BLEU)
 
