@@ -1,4 +1,5 @@
 import pygame
+from pygame.locals import *
 import random
 import os
 def marquer_jeu_gagne(numero):
@@ -17,10 +18,12 @@ def lancer_jeu1():
     HEIGHT = 600
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
     pygame.display.set_caption("Jeu de Calcul")
-
     font = pygame.font.SysFont(None, 70)
     medium_font = pygame.font.SysFont(None, 50)
     small_font = pygame.font.SysFont(None, 36)
+    fond_jeu1 = pygame.image.load(os.path.join(DOSSIER_BASE, "image", "fond_jeu1.png"))
+    fond_jeu1 = pygame.transform.scale(fond_jeu1, (WIDTH, HEIGHT))
+    screen.blit(fond_jeu1, (0,0))
 
     # Couleurs
     WHITE = (255,255,255)
@@ -149,9 +152,12 @@ def lancer_jeu1():
             shake_timer -= 1
             offset_x = random.randint(-5,5)
             offset_y = random.randint(-5,5)
-
         surface = pygame.Surface((WIDTH,HEIGHT))
-        surface.fill(LIGHT_BLUE)
+        fond_jeu1 = pygame.image.load(os.path.join(DOSSIER_BASE, "image", "fond_jeu1.png"))
+        fond_jeu1 = pygame.transform.scale(fond_jeu1, (WIDTH, HEIGHT))
+        surface.blit(fond_jeu1, (0,0))
+        
+        
 
         # MENU
 
@@ -228,6 +234,8 @@ def lancer_jeu1():
 
             if event.type == pygame.QUIT:
                 running = False
+                WIDTH,HEIGHT=800,600
+                screen = pygame.display.set_mode((WIDTH, HEIGHT))
 
             if event.type == pygame.MOUSEBUTTONDOWN:
 
@@ -322,25 +330,29 @@ def lancer_jeu2():
 
     # DÉCORS DE PLAGE
 
-    def draw_palm_tree(x, y):
-        """Dessine un cocotier stylisé (tronc fuselé, feuilles rayonnantes, noix de coco)"""
+    def draw_palm_tree(x, y, screen, screen_height):
+        """Dessine un cocotier stylisé aligné en bas de l'écran"""
         # Tronc : polygone trapézoïdal (plus large en bas)
         trunk_bottom_width = 22
         trunk_top_width = 10
         trunk_height = 80
 
+        # Calcul du bas du tronc : on veut que le bas touche le bas de l'écran
+        bottom_y = screen_height - 1  # presque tout en bas
+        top_y = bottom_y - trunk_height
+
         # Coordonnées du trapèze
+        bottom_left = (x, bottom_y)
+        bottom_right = (x + trunk_bottom_width, bottom_y)
         top_left_x = x + (trunk_bottom_width - trunk_top_width) // 2
         top_right_x = x + trunk_bottom_width - (trunk_bottom_width - trunk_top_width) // 2
-        bottom_left = (x, y + trunk_height)
-        bottom_right = (x + trunk_bottom_width, y + trunk_height)
-        top_left = (top_left_x, y)
-        top_right = (top_right_x, y)
+        top_left = (top_left_x, top_y)
+        top_right = (top_right_x, top_y)
 
         pygame.draw.polygon(screen, BROWN, [bottom_left, bottom_right, top_right, top_left])
 
-        # Centre du sommet du tronc (pour placer les feuilles)
-        center_top = (x + trunk_bottom_width // 2, y)
+        # Centre du sommet du tronc (pour placer les feuilles et noix)
+        center_top = (x + trunk_bottom_width // 2, top_y)
 
         # Feuilles : 7 lignes vertes rayonnant depuis le sommet
         for i in range(7):
@@ -350,11 +362,10 @@ def lancer_jeu2():
             dy = -40 * math.cos(rad)  # négatif car y augmente vers le bas
             end_x = center_top[0] + dx
             end_y = center_top[1] + dy
-            # Alterner les teintes de vert pour plus de réalisme
             color = (34, 139, 34) if i % 2 == 0 else (0, 100, 0)
             pygame.draw.line(screen, color, center_top, (end_x, end_y), 3)
 
-        # Quelques feuilles secondaires plus petites (optionnel)
+        # Feuilles secondaires plus petites
         for i in range(4):
             angle = (i - 1.5) * 20
             rad = math.radians(angle)
@@ -368,7 +379,6 @@ def lancer_jeu2():
         pygame.draw.circle(screen, BROWN, (center_top[0] - 8, center_top[1] - 12), 6)
         pygame.draw.circle(screen, BROWN, (center_top[0] + 6, center_top[1] - 18), 5)
         pygame.draw.circle(screen, BROWN, (center_top[0] + 12, center_top[1] - 8), 4)
-        # Petite ombre sur les noix
         pygame.draw.circle(screen, (101, 67, 33), (center_top[0] - 8, center_top[1] - 12), 3)
         pygame.draw.circle(screen, (101, 67, 33), (center_top[0] + 6, center_top[1] - 18), 2)
 
@@ -402,8 +412,8 @@ def lancer_jeu2():
     def draw_decorations():
         """Place tous les décors sur la plage"""
         # Palmiers (maintenant des cocotiers)
-        draw_palm_tree(100, 450)
-        draw_palm_tree(650, 470)
+        draw_palm_tree(100, 0, screen, HEIGHT)
+        draw_palm_tree(650, 0, screen, HEIGHT)
         # Parasols
         draw_parasol(200, 500)
         draw_parasol(500, 520)
@@ -517,7 +527,7 @@ def lancer_jeu2():
 
     def create_enemies(lvl):
         enemies=[]
-        speed_factor=0.3
+        speed_factor=1
         for _ in range(lvl+1):
             enemies.append({
                 "rect":pygame.Rect(random.randint(100,700), random.randint(100,500),40,40),
@@ -540,7 +550,9 @@ def lancer_jeu2():
 
     while True:
         # Fond de base (sable)
-        screen.fill(SAND)
+        fond_jeu2 = pygame.image.load(os.path.join(DOSSIER_BASE, "image", "fond_jeu2.png"))
+        fond_jeu2 = pygame.transform.scale(fond_jeu2, (WIDTH, HEIGHT))
+        screen.blit(fond_jeu2, (0,0))
 
         # Dessiner les décorations de plage (en arrière-plan)
         draw_decorations()
@@ -921,6 +933,8 @@ def lancer_jeu4():
         
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
+                WIDTH, HEIGHT = 800,600
+                screen = pygame.display.set_mode((WIDTH, HEIGHT))
                 running = False
             
             if event.type == pygame.MOUSEBUTTONDOWN and not game_over:
@@ -976,7 +990,7 @@ def lancer_jeu4():
             screen.blit(txt_fin, (WIDTH//2 - txt_fin.get_width()//2, HEIGHT//2 - 20))
 
             if score_joueur >= SCORE_LIMITE:
-                marquer_jeu_gagne(3)
+                marquer_jeu_gagne(4)
                 screen.blit(font_main.render("Bravo", True, BLACK), (WIDTH//2 - 120, HEIGHT//2 + 30))
                 pygame.display.flip()   # nécessaire pour afficher avant le wait
                 pygame.time.wait(2000)  # pause de 4 secondes
@@ -992,6 +1006,304 @@ def lancer_jeu4():
         clock.tick(30)
 
     return
+def lancer_jeu5():
+    import pygame
+    
+    import sys
+    import random
+
+    WINNING_SCORE = 5
+
+    pygame.init()
+
+    screen=pygame.display.set_mode((640,480),0,32)
+    pygame.display.set_caption("pong")
+
+    #création des 2 bares
+    back = pygame.Surface((640,480))
+    background = back.convert()
+    background.fill((0,0,0))
+    bar = pygame.Surface((10,70))
+    bar1 = bar.convert()
+    bar1.fill((0,0,255))
+    bar2 = bar.convert()
+    bar2.fill((255,0,0))
+    circ_sur = pygame.Surface((15,15))
+    circ = pygame.draw.circle(circ_sur,(0,255,0),(15/2,15/2),15/2)
+    circle = circ_sur.convert()
+    circle.set_colorkey((0,0,0))
+
+    # quelque definition
+    bar1_x, bar2_x = 10. , 620.
+    bar1_y, bar2_y = 215. , 215.
+    circle_x, circle_y = 307.5, 232.5
+    bar1_move, bar2_move = 0. , 0.
+    speed_x, speed_y, speed_circ = 150., 150., 150.
+    bar1_score, bar2_score = 0,0
+
+    clock = pygame.time.Clock()
+    font = pygame.font.SysFont("calibri",40)
+
+    while True:
+        
+        for event in pygame.event.get():
+            if event.type == QUIT:
+                WIDTH, HEIGHT = 800,600
+                screen = pygame.display.set_mode((WIDTH, HEIGHT))
+                running = False
+                return
+            if event.type == KEYDOWN:
+                if event.key == K_UP:
+                    bar1_move = -ai_speed
+                elif event.key == K_DOWN:
+                    bar1_move = ai_speed
+            elif event.type == KEYUP:
+                if event.key == K_UP:
+                    bar1_move = 0.
+                elif event.key == K_DOWN:
+                    bar1_move = 0.
+        
+        score1 = font.render(str(bar1_score), True,(255,255,255))
+        score2 = font.render(str(bar2_score), True,(255,255,255))
+
+        screen.blit(background,(0,0))
+        frame = pygame.draw.rect(screen,(255,255,255),Rect((5,5),(630,470)),2)
+        middle_line = pygame.draw.aaline(screen,(255,255,255),(330,5),(330,475))
+        screen.blit(bar1,(bar1_x,bar1_y))
+        screen.blit(bar2,(bar2_x,bar2_y))
+        screen.blit(circle,(circle_x,circle_y))
+        screen.blit(score1,(250.,210.))
+        screen.blit(score2,(380.,210.))
+
+        bar1_y += bar1_move
+        
+    # mouvement de circle
+        time_passed = clock.tick(30)
+        time_sec = time_passed / 1000.0
+        
+        circle_x += speed_x * time_sec
+        circle_y += speed_y * time_sec
+        ai_speed = speed_circ * time_sec
+    #IA du pc
+        if circle_x >= 305.:
+            if not bar2_y == circle_y + 7.5:
+                if bar2_y < circle_y + 7.5:
+                    bar2_y += ai_speed
+                if  bar2_y > circle_y - 42.5:
+                    bar2_y -= ai_speed
+            else:
+                bar2_y == circle_y + 7.5
+        
+        if bar1_y >= 420.: bar1_y = 420.
+        elif bar1_y <= 10. : bar1_y = 10.
+        if bar2_y >= 420.: bar2_y = 420.
+        elif bar2_y <= 10.: bar2_y = 10.
+    #vue que je ne connais pas trop les collision, la balle qui touche la bare marche comme ça:
+        if circle_x <= bar1_x + 10.:
+            if circle_y >= bar1_y - 7.5 and circle_y <= bar1_y + 42.5:
+                circle_x = 20.
+                speed_x = -speed_x
+        if circle_x >= bar2_x - 15.:
+            if circle_y >= bar2_y - 7.5 and circle_y <= bar2_y + 42.5:
+                circle_x = 605.
+                speed_x = -speed_x
+        if circle_x < 5.:
+            bar2_score += 1
+            circle_x, circle_y = 320., 232.5
+            bar1_y,bar_2_y = 215., 215.
+        elif circle_x > 620.:
+            bar1_score += 1
+            circle_x, circle_y = 307.5, 232.5
+            bar1_y, bar2_y = 215., 215.
+        if circle_y <= 10.:
+            speed_y = -speed_y
+            circle_y = 10.
+        elif circle_y >= 457.5:
+            speed_y = -speed_y
+            circle_y = 457.5
+
+    # check si quelqu'un est arriver a 5 points
+        if bar1_score >= WINNING_SCORE or bar2_score >= WINNING_SCORE:
+            screen.fill((0, 0, 0))
+        
+        if bar1_score >= WINNING_SCORE:
+            # joueur a gagné donc afficher message et fermer le jeu
+            msg = font.render("Tu as gagné, la forêt est sauver!", True, (0, 255, 0))
+            screen.blit(msg, (150, 200))
+            pygame.display.update()
+            pygame.time.delay(3000)
+            marquer_jeu_gagne(3)
+            return # attendre 3 seondes pour qu'ils lisent
+            
+        elif bar2_score >= WINNING_SCORE:
+            # pc gagne: afficher le message et reset le jeu
+            msg = font.render("Tu as perdu", True, (255, 0, 0))
+            screen.blit(msg, (150, 200))
+            pygame.display.update()
+            pygame.time.delay(3000)
+            
+            # reset tout
+            bar1_score, bar2_score = 0, 0
+            circle_x, circle_y = 307.5, 232.5
+            bar1_y, bar2_y = 215., 215.
+            speed_x, speed_y = 250., 250. 
+            continue # recommencer la boucle 
+
+        pygame.display.update()
+def lancer_jeu6():
+    import pygame
+    from sys import exit
+    import random
+    import os
+
+    # Base directory for assets
+    DOSSIER_BASE = os.path.dirname(__file__)
+
+    # Game Constants
+    GAME_WIDTH = 360
+    GAME_HEIGHT = 640
+    BIRD_X = GAME_WIDTH / 8
+    BIRD_Y = GAME_HEIGHT / 2
+    BIRD_WIDTH, BIRD_HEIGHT = 34, 24
+    PIPE_WIDTH, PIPE_HEIGHT = 64, 512
+
+    class Bird(pygame.Rect):
+        def __init__(self, img):
+            super().__init__(BIRD_X, BIRD_Y, BIRD_WIDTH, BIRD_HEIGHT)
+            self.img = img
+
+    class Pipe(pygame.Rect):
+        def __init__(self, img, x, y):
+            super().__init__(x, y, PIPE_WIDTH, PIPE_HEIGHT)
+            self.img = img
+            self.passed = False
+
+    # Initialize Pygame
+    pygame.init()
+    window = pygame.display.set_mode((GAME_WIDTH, GAME_HEIGHT))
+    clock = pygame.time.Clock()
+    text_font = pygame.font.SysFont("Comic Sans MS", 45)
+
+    # Load Images (Added .png - adjust if your extensions are different)
+    def load_img(name, size=None):
+        path = os.path.join(DOSSIER_BASE, "image", name)
+        img = pygame.image.load(path).convert_alpha()
+        return pygame.transform.scale(img, size) if size else img
+
+    try:
+        background_image = load_img("flappybirdbg.png", (GAME_WIDTH, GAME_HEIGHT))
+        bird_image = load_img("flappybird.png", (BIRD_WIDTH, BIRD_HEIGHT))
+        top_pipe_img = load_img("toppipe.png", (PIPE_WIDTH, PIPE_HEIGHT))
+        bottom_pipe_img = load_img("bottompipe.png", (PIPE_WIDTH, PIPE_HEIGHT))
+    except pygame.error as e:
+        print(f"Error loading images: {e}. Check your file extensions!")
+        # Placeholder surfaces if images fail
+        background_image = pygame.Surface((GAME_WIDTH, GAME_HEIGHT))
+        bird_image = pygame.Surface((BIRD_WIDTH, BIRD_HEIGHT))
+        top_pipe_img = pygame.Surface((PIPE_WIDTH, PIPE_HEIGHT))
+        bottom_pipe_img = pygame.Surface((PIPE_WIDTH, PIPE_HEIGHT))
+
+    # Game State
+    bird = Bird(bird_image)
+    pipes = []
+    velocity_y = 0
+    gravity = 0.25  # Slightly lighter gravity for better feel
+    score = 0
+    game_over = False
+
+    def reset_game():
+        global score, game_over, velocity_y, pipes
+        bird.y = BIRD_Y
+        velocity_y = 0
+        pipes.clear()
+        score = 0
+        game_over = False
+
+    def create_pipes():
+        gap = 150
+        random_y = random.randint(100, GAME_HEIGHT - gap - 100)
+        # Top pipe: bottom of pipe is at random_y
+        pipes.append(Pipe(top_pipe_img, GAME_WIDTH, random_y - PIPE_HEIGHT))
+        # Bottom pipe: top of pipe is at random_y + gap
+        pipes.append(Pipe(bottom_pipe_img, GAME_WIDTH, random_y + gap))
+
+    # Timer
+    SPAWNPIPE = pygame.USEREVENT
+    pygame.time.set_timer(SPAWNPIPE, 1500)
+
+    # Add this variable at the top with your other game variables
+    victory_time = 0
+    victory_achieved = False
+
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                exit()
+            
+            if event.type == SPAWNPIPE and not game_over and not victory_achieved:
+                create_pipes()
+
+            if event.type == pygame.KEYDOWN:
+                if event.key in (pygame.K_SPACE, pygame.K_UP):
+                    if game_over:
+                        reset_game()
+                    elif not victory_achieved:
+                        velocity_y = -6
+            
+            if score >= 10 and not victory_achieved:
+                victory_achieved = True
+                victory_time = pygame.time.get_ticks()
+                marquer_jeu_gagne(5)
+                        
+        if not game_over:
+            # Bird Physics
+            velocity_y += gravity
+            bird.y += velocity_y
+            
+            # Floor/Ceiling collision
+            if bird.bottom >= GAME_HEIGHT or bird.top <= 0:
+                game_over = True
+
+            # Pipe logic
+            for pipe in pipes[:]:
+                pipe.x -= 3
+                if bird.colliderect(pipe):
+                    game_over = True
+                if not pipe.passed and bird.left > pipe.right:
+                    score += 0.5 # Two pipes per set
+                    pipe.passed = True
+                if pipe.right < 0:
+                    pipes.remove(pipe)
+
+        # Drawing
+        window.blit(background_image, (0, 0))
+        for pipe in pipes:
+            window.blit(pipe.img, pipe)
+        window.blit(bird.img, bird)
+
+
+        # UI
+        score_surface = text_font.render(f"{int(score)}", True, (255, 255, 255))
+        window.blit(score_surface, (GAME_WIDTH//2 - 10, 50))
+        
+        if victory_achieved:
+            # Create the Victory Text
+            victory_font = pygame.font.SysFont("Comic Sans MS", 50)
+            win_text = victory_font.render("Tu as gagné(e)", True, (255, 0, 0))
+            window.blit(win_text, (GAME_WIDTH//2 - 100, GAME_HEIGHT//2))
+            
+            # Check if 5000 milliseconds (5 seconds) have passed
+            if pygame.time.get_ticks() - victory_time > 5000:
+                pygame.quit()
+                exit()
+
+        if game_over:
+            over_surface = text_font.render("GAME OVER", True, (255, 0, 0))
+            window.blit(over_surface, (GAME_WIDTH//2 - 100, GAME_HEIGHT//2))
+
+        pygame.display.update()
+        clock.tick(60)
 
 pygame.init()
 
@@ -1002,8 +1314,8 @@ pygame.display.set_caption("Main")
 
 image_bouton_puzzle = pygame.image.load(os.path.join(DOSSIER_BASE, "image", "image_bouton_puzzle.jpg"))
 image_bouton_puzzle = pygame.transform.scale(image_bouton_puzzle, (80, 80))
-image_sapin = pygame.image.load(os.path.join(DOSSIER_BASE, "image", "image_sapin.jpg"))
-image_sapin = pygame.transform.scale(image_sapin, (20, 20))
+image_sapin = pygame.image.load(os.path.join(DOSSIER_BASE, "image", "image_sapin.png"))
+image_sapin = pygame.transform.scale(image_sapin, (55, 55))
 image_puzzle = pygame.image.load(os.path.join(DOSSIER_BASE, "image", "image_puzzle.jpg"))
 image_puzzle = pygame.transform.scale(image_puzzle, (600, 400))
 
@@ -1080,6 +1392,10 @@ while en_cours:
                             lancer_jeu3()
                         if nom == "Jeu 4":
                             lancer_jeu4()
+                        if nom== "Jeu 5":
+                            lancer_jeu5()
+                        if nom=="Jeu 6":
+                            lancer_jeu6()
                 if bouton_regles.collidepoint(evenement.pos):
                     ecran = "regles"
             elif ecran == "regles":
