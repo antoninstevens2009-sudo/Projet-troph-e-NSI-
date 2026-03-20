@@ -563,7 +563,11 @@ def lancer_jeu2():
             screen.blit(font.render("Appuie sur ENTREE",True,GREEN),(270,300))
 
             for e in pygame.event.get():
-                if e.type==pygame.QUIT: pygame.quit(); sys.exit()
+                if e.type == pygame.QUIT:
+                    running = False
+                    WIDTH,HEIGHT=800,600
+                    screen = pygame.display.set_mode((WIDTH, HEIGHT))
+                    return
                 if e.type==pygame.KEYDOWN and e.key==pygame.K_RETURN:
                     game["game_state"]="play"
 
@@ -576,7 +580,11 @@ def lancer_jeu2():
             screen.blit(font.render("R recommencer | Q quitter",True,BLACK),(190,320))
 
             for e in pygame.event.get():
-                if e.type==pygame.QUIT: pygame.quit(); sys.exit()
+                if e.type == pygame.QUIT:
+                    running = False
+                    WIDTH,HEIGHT=800,600
+                    screen = pygame.display.set_mode((WIDTH, HEIGHT))
+                    return
                 if e.type==pygame.KEYDOWN:
                     if e.key==pygame.K_r:
                         game=init_game()
@@ -589,7 +597,10 @@ def lancer_jeu2():
 
         # EVENTS
         for e in pygame.event.get():
-            if e.type==pygame.QUIT: pygame.quit(); sys.exit()
+            if e.type == pygame.QUIT:
+                    running = False
+                    WIDTH,HEIGHT=800,600
+                    screen = pygame.display.set_mode((WIDTH, HEIGHT))
 
             if game["show_math"] and e.type==pygame.KEYDOWN:
                 if e.key==pygame.K_RETURN:
@@ -755,8 +766,17 @@ def lancer_jeu3():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
+                WIDTH,HEIGHT=800,600
+                screen = pygame.display.set_mode((WIDTH, HEIGHT))
+                return
+                
             
             if event.type == pygame.KEYDOWN and not jeu_fini:
+                if event.type == pygame.QUIT:
+                    running = False
+                    WIDTH,HEIGHT=800,600
+                    screen = pygame.display.set_mode((WIDTH, HEIGHT))
+                    return
                 if event.key == pygame.K_RETURN:
                     if input_text == str(nombre_arbres):
                         if manche_actuelle < total_manches:
@@ -992,7 +1012,8 @@ def lancer_jeu4():
             if score_joueur >= SCORE_LIMITE:
                 marquer_jeu_gagne(4)
                 screen.blit(font_main.render("Bravo", True, BLACK), (WIDTH//2 - 120, HEIGHT//2 + 30))
-                pygame.display.flip()   # nécessaire pour afficher avant le wait
+                pygame.display.flip()
+                marquer_jeu_gagne(3)   # nécessaire pour afficher avant le wait
                 pygame.time.wait(2000)  # pause de 4 secondes
                 WIDTH, HEIGHT = 800,600
                 screen = pygame.display.set_mode((WIDTH, HEIGHT))
@@ -1155,6 +1176,7 @@ def lancer_jeu6():
     from sys import exit
     import random
     import os
+    pipes=[]
 
     # Base directory for assets
     DOSSIER_BASE = os.path.dirname(__file__)
@@ -1212,7 +1234,7 @@ def lancer_jeu6():
     game_over = False
 
     def reset_game():
-        global score, game_over, velocity_y, pipes
+        nonlocal score, game_over, velocity_y, pipes
         bird.y = BIRD_Y
         velocity_y = 0
         pipes.clear()
@@ -1238,8 +1260,11 @@ def lancer_jeu6():
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                pygame.quit()
-                exit()
+                running = False
+                WIDTH,HEIGHT=800,600
+                screen = pygame.display.set_mode((WIDTH, HEIGHT))
+                return
+                
             
             if event.type == SPAWNPIPE and not game_over and not victory_achieved:
                 create_pipes()
@@ -1251,10 +1276,13 @@ def lancer_jeu6():
                     elif not victory_achieved:
                         velocity_y = -6
             
-            if score >= 10 and not victory_achieved:
+            if score >= 8 and not victory_achieved:
                 victory_achieved = True
-                victory_time = pygame.time.get_ticks()
+                pygame.time.delay(3000)
                 marquer_jeu_gagne(5)
+                WIDTH,HEIGHT=800,600
+                screen = pygame.display.set_mode((WIDTH, HEIGHT))
+                return
                         
         if not game_over:
             # Bird Physics
